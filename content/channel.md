@@ -1,4 +1,5 @@
 # channel通道实战
+> 此开源图书由[thaiq](https://github.com/ithaiq)原创，创作不易转载请注明出处
 
 * channel搭配管道pipeline提高并发
 
@@ -117,3 +118,52 @@ func main() {
 	fmt.Printf("测试--用时:%d秒\r\n", end-start)
 }
 ```
+---
+* 部分坑
+
+  * 超时控制搭配channel
+  ```go
+    func test(d time.Duration, f func() error, success string, fail string) error {
+        ctx, cancel := context.WithTimeout(context.Background(), d)
+        defer cancel()
+        for {
+            select {
+            case <-ctx.Done():
+                return fmt.Errorf(fail)
+            default:
+                err := f()
+                if err == nil {
+                    logger.Info(success)
+                    return nil
+                } else {
+                    return err
+                }
+            }
+        }
+    }
+  ```
+  如果f()里面有耗时操作context超时限制失效，修改如下即可
+  ```go
+    func test(d time.Duration, f func() error, success string, fail string) error {
+        ctx, cancel := context.WithTimeout(context.Background(), d)
+        defer cancel()
+        ch := make(chan error)
+        go func() {
+            ch <- f()
+            close(ch)
+        }()
+        for {
+            select {
+            case <-ctx.Done():
+                return fmt.Errorf(fail)
+            case err := <-ch:
+                f err == nil {
+                    logger.Info(success)
+                    return nil
+                } else {
+                    return err
+                }
+            }
+        }
+    }
+  ```
