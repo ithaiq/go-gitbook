@@ -57,3 +57,39 @@ func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
 }
 ```
 
+* [无重复字符的最长子串](https://leetcode-cn.com/problems/longest-substring-without-repeating-characters/)
+>分析：维护一个滑动窗口，由go map+slice相当于定义有序set，如果窗口值重复则从窗口起始开始删除直至不重复为止。
+
+```go
+func lengthOfLongestSubstring(s string) int {
+	if len(s) == 0 {
+		return 0
+	}
+	var maxLen int
+	var windowArr []byte
+	windowMap := make(map[byte]bool)
+	for i := 0; i < len(s); i++ {
+		if _, ok := windowMap[s[i]]; !ok {
+			windowMap[s[i]] = true
+			windowArr = append(windowArr, s[i])
+			maxLen = max(maxLen, len(windowMap))
+		} else {
+			for exist := true; exist; _, exist = windowMap[s[i]] {
+				val := windowArr[0]
+				delete(windowMap, val)
+				windowArr = windowArr[1:]
+			}
+			windowMap[s[i]] = true
+			windowArr = append(windowArr, s[i])
+		}
+	}
+	return maxLen
+}
+
+func max(x, y int) int {
+	if x < y {
+		return y
+	}
+	return x
+}
+```
