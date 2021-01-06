@@ -93,3 +93,158 @@ func max(x, y int) int {
 	return x
 }
 ```
+* [最长回文子串](https://leetcode-cn.com/problems/longest-palindromic-substring/)
+>分析：回文子串有两种情况，aba和abba，所以字符串一个字符应该遍历两遍
+
+```go
+func longestPalindrome(s string) string {
+	if len(s) < 2 {
+		return s
+	}
+	start, maxLen := 0, 1
+	getLongestPalindrome := func(left, right int) {
+		for left >= 0 && right < len(s) && s[left] == s[right] {
+			val := right - left + 1
+			if val > maxLen {
+				maxLen = val
+				start = left
+			}
+			left--
+			right++
+		}
+	}
+	for i := 0; i < len(s); i++ {
+		getLongestPalindrome(i-1, i+1)
+		getLongestPalindrome(i, i+1)
+	}
+	return s[start : start+maxLen]
+}
+```
+
+* 15. [三数之和](https://leetcode-cn.com/problems/3sum/)
+>分析：先将数字排序，然后遍历，每次遍历定义start和end节点 如果大了end--,小了start++，注意重复情况
+
+```go
+func threeSum(nums []int) [][]int {
+	var result [][]int
+	sortNum := func(nums []int) {
+		for i := 0; i < len(nums)-1; i++ {
+			for j := i + 1; j < len(nums); j++ {
+				if nums[i] > nums[j] {
+					nums[i], nums[j] = nums[j], nums[i]
+				}
+			}
+		}
+	}
+	sortNum(nums)
+	for i := 0; i < len(nums)-2; i++ {
+		if i == 0 || nums[i] != nums[i-1] {
+			start, end := i+1, len(nums)-1
+			for start < end {
+				val := nums[i] + nums[start] + nums[end]
+				if val == 0 {
+					result = append(result, []int{nums[i], nums[start], nums[end]})
+					start++
+					end--
+					for start < end && nums[start] == nums[start-1] {
+						start++
+					}
+					for start < end && nums[end] == nums[end+1] {
+						end--
+					}
+				} else if val < 0 {
+					start++
+				} else {
+					end--
+				}
+			}
+		}
+	}
+	return result
+}
+```
+* 19. [删除链表的倒数第N个节点](https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/)
+>分析：创建dummy节点处理边界情况
+
+```go
+/**
+ * Definition for singly-linked list.
+ * type ListNode struct {
+ *     Val int
+ *     Next *ListNode
+ * }
+ */
+func removeNthFromEnd(head *ListNode, n int) *ListNode {
+	dummy := &ListNode{}
+	dummy.Next = head
+	start, end := dummy, dummy
+	for i := 0; i < n; i++ {
+		end = end.Next
+	}
+	for end.Next != nil {
+		start = start.Next
+		end = end.Next
+	}
+	start.Next = start.Next.Next
+	return dummy.Next
+}
+```
+
+* 20. [有效的括号](https://leetcode-cn.com/problems/valid-parentheses/)
+>分析：go使用slice切片模拟stack栈，这里要注意的是string字符串遍历得到的是byte
+
+```go
+func isValid(s string) bool {
+	tmp := map[byte]byte{
+		'{': '}',
+		'[': ']',
+		'(': ')',
+	}
+	var stack []byte
+	for i := 0; i < len(s); i++ {
+		if value, ok := tmp[s[i]]; ok {
+			stack = append(stack, value)
+		} else {
+            if len(stack) == 0 {
+				return false
+			}
+			endValue := stack[len(stack)-1]
+			if s[i] != endValue {
+				return false
+			}
+			stack = stack[:len(stack)-1]
+		}
+	}
+	if len(stack) != 0 {
+		return false
+	}
+	return true
+}
+```
+
+* 21. [合并两个有序链表](https://leetcode-cn.com/problems/merge-two-sorted-lists/)
+>分析：使用dummy节点返回根节点
+
+```go
+func mergeTwoLists(l1 *ListNode, l2 *ListNode) *ListNode {
+	node := &ListNode{}
+	dummy := node
+	for l1 != nil && l2 != nil {
+		if l1.Val > l2.Val {
+			node.Next = l2
+			l2 = l2.Next
+		} else {
+			node.Next = l1
+			l1 = l1.Next
+		}
+		node = node.Next
+	}
+	if l1 != nil {
+		node.Next = l1
+	}
+	if l2 != nil {
+		node.Next = l2
+	}
+	return dummy.Next
+}
+```
