@@ -248,3 +248,66 @@ func mergeTwoLists(l1 *ListNode, l2 *ListNode) *ListNode {
 	return dummy.Next
 }
 ```
+
+* 24. [两两交换链表中的节点](https://leetcode-cn.com/problems/swap-nodes-in-pairs/)
+>分析：利用dummy节点，详细分析见下
+
+```go
+//a->b->c->d
+//a->c
+//b->d
+//c->b
+//a=b
+/**
+ * Definition for singly-linked list.
+ * type ListNode struct {
+ *     Val int
+ *     Next *ListNode
+ * }
+ */
+func swapPairs(head *ListNode) *ListNode {
+	dummy := &ListNode{}
+	dummy.Next = head
+	start := dummy
+	for start.Next != nil && start.Next.Next != nil {
+		p1 := start.Next
+		p2 := start.Next.Next
+		start.Next = p2
+		p1.Next = p2.Next
+		p2.Next = p1
+		start = p1
+	}
+	return dummy.Next
+}
+```
+
+* 49. [字母异位词分组](https://leetcode-cn.com/problems/group-anagrams/)
+>分析：可以先排序后再遍历，这里是开一个26大小的数组然后遍历比较
+
+```go
+func groupAnagrams(strs []string) [][]string {
+	var result [][]string
+	tmp := make(map[string][]string)
+	for _, str := range strs {
+		arr := [26]int{}
+		for i := 0; i < len(str); i++ {
+			arr[str[i]-97]++
+		}
+		var strArr []string
+		for j := 0; j < 26; j++ {
+			strArr = append(strArr, fmt.Sprintf("%d", arr[j]))
+		}
+		fiStr := strings.Join(strArr, " ")
+		if v, ok := tmp[fiStr]; ok {
+			v = append(v, str)
+			tmp[fiStr] = v
+		} else {
+			tmp[fiStr] = []string{str}
+		}
+	}
+	for _, v := range tmp {
+		result = append(result, v)
+	}
+	return result
+}
+```
