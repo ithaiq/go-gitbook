@@ -311,3 +311,153 @@ func groupAnagrams(strs []string) [][]string {
 	return result
 }
 ```
+* 53. [最大子序和](https://leetcode-cn.com/problems/maximum-subarray/)
+>分析：遍历下一个数要比较和上一个最大值是否比较大 选择加入或者直接从这个数新开始计算最大值
+
+```go
+func maxSubArray(nums []int) int {
+	maxFun := func(a, b int) int {
+		if a < b {
+			return b
+		} else {
+			return a
+		}
+	}
+	if len(nums) == 0 {
+		return 0
+	}
+	memo := make([]int, len(nums))
+	memo[0] = nums[0]
+	max := memo[0]
+	for i := 1; i < len(nums); i++ {
+		memo[i] = maxFun(memo[i-1]+nums[i], nums[i])
+		max = maxFun(max, memo[i])
+	}
+	return max
+}
+```
+* 54. [螺旋矩阵](https://leetcode-cn.com/problems/spiral-matrix/)
+>分析：右下左上的遍历方向 注意边界情况
+
+```go
+/*
+输入:
+[
+[ 1, 2, 3 ],
+[ 4, 5, 6 ],
+[ 7, 8, 9 ]
+]
+输出: [1,2,3,6,9,8,7,4,5]
+*/
+func spiralOrder(matrix [][]int) []int {
+	var (
+		left      = 0
+		right     = len(matrix[0]) - 1
+		top       = 0
+		bottom    = len(matrix) - 1
+		direction = "right"
+		result    []int
+	)
+	for left <= right && top <= bottom {
+		if direction == "right" {
+			for i := left; i <= right; i++ {
+				result = append(result, matrix[top][i])
+			}
+			top++
+			direction = "bottom"
+		} else if direction == "bottom" {
+			for i := top; i <= bottom; i++ {
+				result = append(result, matrix[i][right])
+			}
+			right--
+			direction = "left"
+		} else if direction == "left" {
+			for i := right; i >= left; i-- {
+				result = append(result, matrix[bottom][i])
+			}
+			bottom--
+			direction = "top"
+		} else if direction == "top" {
+			for i := bottom; i >= top; i-- {
+				result = append(result, matrix[i][left])
+			}
+			left++
+			direction = "right"
+		}
+	}
+	return result
+}
+```
+
+* 55. [跳跃游戏](https://leetcode-cn.com/problems/jump-game/)
+>分析：可以使用动态规划也可以用贪心算法解题，定义dp，1代表可以到达，-1代表不能到达，0是初始化未知值
+
+``` go
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func jump(index int, nums []int, dp []int) bool {
+	if dp[index] == 1 {
+		return true
+	} else if dp[index] == -1 {
+		return false
+	}
+	maxJump := min(nums[index]+index, len(nums)-1)
+	for i := index + 1; i <= maxJump; i++ {
+		if jump(i, nums, dp) {
+			dp[index] = 1
+			return true
+		}
+	}
+	dp[index] = -1
+	return false
+}
+
+func canJump(nums []int) bool {
+	dp := make([]int, len(nums))
+	dp[len(nums)-1] = 1
+	return jump(0, nums, dp)
+}
+
+//贪心算法
+//0 1 2 3 4
+//3 1 0 2 4
+func canJump(nums []int) bool {
+	maxJump := len(nums) - 1
+	for i := len(nums) - 2; i >= 0; i-- {
+		if i+nums[i] >= maxJump {
+			maxJump = i
+		}
+	}
+	return maxJump == 0
+}
+```
+
+* 56. [合并区间](https://leetcode-cn.com/problems/merge-intervals/)
+>分析：首先排序，然后合并区间，注意之前合并的值是会被后面的值合并的。
+
+``` go
+func merge(intervals [][]int) [][]int {
+	var result [][]int
+
+	if len(intervals) < 2 {
+		return intervals
+	}
+	sort.SliceStable(intervals, func(i, j int) bool {
+		return intervals[i][0] < intervals[j][0]
+	})
+	//{0, 2}, {1, 4}, {3, 5}
+	for index := 0; index < len(intervals); index++ {
+		if index == 0 || intervals[index][0] > result[len(result)-1][1] {
+			result = append(result, intervals[index])
+		} else if intervals[index][1] > result[len(result)-1][1] {
+			result[len(result)-1][1] = intervals[index][1]
+		}
+	}
+	return result
+}
+```
