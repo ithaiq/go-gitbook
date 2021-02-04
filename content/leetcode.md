@@ -461,3 +461,63 @@ func merge(intervals [][]int) [][]int {
 	return result
 }
 ```
+
+* 62. [不同路径](https://leetcode-cn.com/problems/unique-paths/)
+>分析：动态规划经典题，dp方程是dp[i][j] = dp[i-1][j] + dp[i][j-1]
+
+``` go
+func uniquePaths(m int, n int) int {
+	dp := make([][]int, m)
+	for i := range dp {
+		dp[i] = make([]int, n)
+	}
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			if i == 0 || j == 0 {
+				dp[i][j] = 1
+			} else {
+				dp[i][j] = dp[i-1][j] + dp[i][j-1]
+			}
+		}
+	}
+	return dp[m-1][n-1]
+}
+```
+
+* 66. [加一]](https://leetcode-cn.com/problems/plus-one/)
+>分析：注意999的数组计算后结果是1000
+
+``` go
+func plusOne(digits []int) []int {
+	var result []int
+	for i := len(digits) - 1; i >= 0; i-- {
+		if digits[i] != 9 {
+			digits[i]++
+			return digits
+		} else {
+			digits[i] = 0
+		}
+	}
+	result = append(result, 1)
+	result = append(result, digits...)
+	return result
+}
+```
+
+* 70. [爬楼梯]](https://leetcode-cn.com/problems/climbing-stairs/)
+>分析：经典动态规划题，dp方程是dp[i] = dp[i-1] + dp[i-2]
+
+``` go
+func climbStairs(n int) int {
+	if n <= 2 {
+		return n
+	}
+	dp := make([]int, n+1)
+	dp[1] = 1
+	dp[2] = 2
+	for i := 3; i <= n; i++ {
+		dp[i] = dp[i-1] + dp[i-2]
+	}
+	return dp[n]
+}
+```
