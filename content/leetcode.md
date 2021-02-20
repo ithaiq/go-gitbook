@@ -521,3 +521,111 @@ func climbStairs(n int) int {
 	return dp[n]
 }
 ```
+
+* 73. [矩阵置零]](https://leetcode-cn.com/problems/set-matrix-zeroes/)
+>分析：先处理边界，原数组置换
+
+``` go
+func setZeroes(matrix [][]int) {
+	var isXZero, isYZero bool
+	for i := 0; i < len(matrix); i++ {
+		if matrix[i][0] == 0 {
+			isYZero = true
+			break
+		}
+	}
+	for i := 0; i < len(matrix[0]); i++ {
+		if matrix[0][i] == 0 {
+			isXZero = true
+			break
+		}
+	}
+	for i := 1; i < len(matrix); i++ {
+		for j := 1; j < len(matrix[0]); j++ {
+			if matrix[i][j] == 0 {
+				matrix[i][0] = 0
+				matrix[0][j] = 0
+			}
+		}
+	}
+	for i := 1; i < len(matrix); i++ {
+		for j := 1; j < len(matrix[0]); j++ {
+			if matrix[i][0] == 0 || matrix[0][j] == 0 {
+				matrix[i][j] = 0
+			}
+		}
+	}
+	if isXZero {
+		for i := 0; i < len(matrix[0]); i++ {
+			matrix[0][i] = 0
+		}
+	}
+	if isYZero {
+		for i := 0; i < len(matrix); i++ {
+			matrix[i][0] = 0
+		}
+	}
+}
+```
+
+* 83. [删除排序链表中的重复元素](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-list/)
+>分析：不要想太复杂，思路清晰即可
+
+``` go
+func deleteDuplicates(head *ListNode) *ListNode {
+	tmp := head
+	for tmp != nil && tmp.Next != nil {
+		if tmp.Next.Val == tmp.Val {
+			tmp.Next = tmp.Next.Next
+		} else {
+			tmp = tmp.Next
+		}
+	}
+	return head
+}
+```
+
+* 206. [转链表 II](https://leetcode-cn.com/problems/reverse-linked-list-ii/)
+>分析：注意for循环条件和比普通反转链表新增两个指针
+
+``` go
+func reverseBetween(head *ListNode, left int, right int) *ListNode {
+	var pre *ListNode
+	cur, next := head, head
+	for i := 1; i < left; i++ {
+		pre = cur
+		cur = cur.Next
+	}
+	prev2, cur2 := pre, cur
+	for i := left; i <= right; i++ {
+		next = cur.Next
+		cur.Next = pre
+		pre = cur
+		cur = next
+	}
+	if prev2 != nil {
+		prev2.Next = pre
+	} else {
+		head = pre
+	}
+	cur2.Next = cur
+	return head
+}
+```
+
+* 206. [反转链表](https://leetcode-cn.com/problems/reverse-linked-list/)
+>分析：next节点作用是占住cur的下个节点不然丢失了，注意for条件判断
+
+``` go
+func reverseList(head *ListNode) *ListNode {
+	var pre *ListNode
+	cur, next := head, head
+	for cur != nil {
+		next = cur.Next
+		cur.Next = pre
+		pre = cur
+		cur = next
+	}
+	return pre
+}
+```
